@@ -6,7 +6,21 @@ app.get("/", function (req, res) {
   res.send("Home Page");
 });
 
-app.post("/signup", function (req, res) {});
+app.post("/signup", async function (req, res) {
+  const email = req.body.email;
+  const name = req.body.name;
+  const password = req.body.password;
+
+  await UserModel.insert({
+    email: email,
+    name: name,
+    password: password,
+  });
+
+  res.json({
+    message: "You're signed up",
+  });
+});
 
 app.post("/login", function (req, res) {});
 

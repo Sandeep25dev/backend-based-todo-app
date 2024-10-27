@@ -3,16 +3,15 @@ const Schema = mongoose.Schema;
 const ObjectId = mongoose.ObjectId;
 
 const User = new Schema({
-  username: String,
-  age: Int32Array,
-  password: String,
+  email: String,
   name: String,
+  password: String,
 });
 
 const Todo = new Schema({
+  userId: ObjectId,
   description: String,
   done: Boolean,
-  userId: ObjectId,
 });
 
 const UserModel = mongoose.model("users", User);
