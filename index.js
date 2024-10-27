@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const { UserModel, TodoModel } = require("./db");
 
 app.get("/", function (req, res) {
   res.send("Home Page");
