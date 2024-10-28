@@ -9,9 +9,9 @@ const User = new Schema({
 });
 
 const Todo = new Schema({
-  userId: ObjectId,
   description: String,
   done: Boolean,
+  userId: ObjectId,
 });
 
 const UserModel = mongoose.model("users", User);

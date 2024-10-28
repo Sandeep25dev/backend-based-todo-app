@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const { UserModel, TodoModel } = require("./db");
 const jwt = require("jsonwebtoken");
-const auth = require("./auth");
+const { auth } = require("./auth");
 const { JWT_SECRET, mongoDB_URL } = require("./config");
 const mongoose = require("mongoose");
 mongoose.connect(mongoDB_URL);
@@ -39,8 +39,6 @@ app.post("/signin", async function (req, res) {
       password: password,
     });
 
-    console.log(user);
-
     if (user) {
       const token = jwt.sign(
         {
@@ -62,9 +60,37 @@ app.post("/signin", async function (req, res) {
   }
 });
 
-app.post("/todo", auth, function (req, res) {});
+app.post("/todo", auth, async function (req, res) {
+  const userId = req.userId;
+  const description = req.body.description;
+  const done = req.body.done;
 
-app.get("/todos", auth, function (req, res) {});
+  await TodoModel.create({
+    description,
+    done,
+    userId,
+  });
+
+  res.json({
+    message: "Todo added to the DB",
+  });
+});
+
+app.get("/todos", auth, async function (req, res) {
+  const userId = req.userId;
+  const todos = await TodoModel.find({
+    userId: userId,
+  });
+  if (todos) {
+    res.json({
+      todos,
+    });
+  } else {
+    res.json({
+      message: "No todos found for this user",
+    });
+  }
+});
 
 app.listen(3003, function () {
   console.log("Server is live on PORT 3003");
