@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const { UserModel, TodoModel } = require("./db");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 const { auth } = require("./auth");
 const { JWT_SECRET, mongoDB_URL } = require("./config");
 const mongoose = require("mongoose");
@@ -18,9 +19,11 @@ app.post("/signup", async function (req, res) {
   const password = req.body.password;
   const name = req.body.name;
 
+  const hashedPassword = await bcrypt.hash(password, 5);
+
   await UserModel.create({
     email: email,
-    password: password,
+    password: hashedPassword,
     name: name,
   });
 
@@ -36,10 +39,18 @@ app.post("/signin", async function (req, res) {
     // UserModel is reffered to the users collection in  our database
     const user = await UserModel.findOne({
       email: email,
-      password: password,
     });
 
-    if (user) {
+    if (!user) {
+      res.status(403).json({
+        message: "user not found",
+      });
+      return;
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (passwordMatch) {
       const token = jwt.sign(
         {
           id: user._id.toString(),
