@@ -2,11 +2,10 @@ const express = require("express");
 const app = express();
 const { UserModel, TodoModel } = require("./db");
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET, auth } = require("./auth");
+const auth = require("./auth");
+const { JWT_SECRET, mongoDB_URL } = require("./config");
 const mongoose = require("mongoose");
-mongoose.connect(
-  "mongodb+srv://sandeepkumar250903:sandip10@cluster0.ptlwf.mongodb.net/todo-app-database"
-);
+mongoose.connect(mongoDB_URL);
 
 app.use(express.json());
 
@@ -35,15 +34,17 @@ app.post("/signin", async function (req, res) {
   const password = req.body.password;
   try {
     // UserModel is reffered to the users collection in  our database
-    const response = await UserModel.findOne({
+    const user = await UserModel.findOne({
       email: email,
       password: password,
     });
 
-    if (response) {
+    console.log(user);
+
+    if (user) {
       const token = jwt.sign(
         {
-          id: response._id.toString(),
+          id: user._id.toString(),
         },
         JWT_SECRET
       );
